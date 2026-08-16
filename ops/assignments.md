@@ -37,7 +37,7 @@ With one human, the author of a PR is also its reviewer. The compensating contro
 
 | Module | Locked By | Branch | Since | Issue |
 |---|---|---|---|---|
-| src/core/ | [L]/@backend | `m0/03-scoping` | 2026-08-16 | #3 |
+| src/core/ | — | — | — | — (#3 merged) |
 | src/models/ | — | — | — | — (#2 merged) |
 | src/api/ | — | — | — | — |
 | src/events/ | — | — | — | — |
@@ -46,7 +46,7 @@ With one human, the author of a PR is also its reviewer. The compensating contro
 | src/ai/ | — | — | — | — |
 | src/buzz/ | — | — | — | — |
 | client/ | — | — | — | — |
-| tests/ | [L]/@backend | `m0/03-scoping` | 2026-08-16 | #3 (own tests) |
+| tests/ | — | — | — | — (#3 merged) |
 | migrations/ | — | — | — | — (#2 merged) |
 
 *(All unlocked. Claim a module by creating your branch and filling in this row.)*
