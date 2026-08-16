@@ -20,6 +20,13 @@ class Settings(BaseSettings):
     environment: str = "local"
     app_name: str = "BuzzCRM"
 
+    auth_stub_user_email: str = "sales@skyscape.com"
+    """Which seeded user the ADR-007 auth stub resolves to.
+
+    Configurable so a developer can act as a different seeded user without a
+    code change. Irrelevant once the SSO adapter replaces the stub.
+    """
+
 
 @lru_cache
 def get_settings() -> Settings:
