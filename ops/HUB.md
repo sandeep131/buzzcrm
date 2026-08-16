@@ -45,7 +45,7 @@ installed alongside the box's 3.9, which remains the untouched system default.
 - [x] ~~Entity naming~~ → ADR-008
 - [x] ~~Soft delete + orphan contacts~~ → ADR-009
 - [x] ~~Bootstrap actor / nullable `created_by`~~ → ADR-011 (per-tenant system actor)
-- [ ] **ADR-010 — sync vs async SQLAlchemy.** Scaffolded sync; rationale in `README.md`. **Must settle before #3** — the repository base bakes session style into every query path. Cheap now, a rewrite later.
+- [x] ~~**ADR-010 — sync vs async SQLAlchemy**~~ → **ADR-010: sync, Accepted 2026-08-16.** Confirmed against #2 rather than on argument alone. **#3 is now unblocked.**
 - [ ] **Deployment target — ADR-004.** Gated on the auth stub (ADR-007). MVP must not be publicly reachable until the SSO adapter lands.
 - [ ] Sales roles / permissions model — needs role list from Skyscape team
 - [ ] Initial Salesforce export samples from sales team
@@ -60,7 +60,7 @@ Detail and acceptance criteria in `ops/ISSUES.md`. **Sequential — dependencies
 |---|---|---|---|---|---|---|
 | 1 | Project skeleton | @backend | [L] | `m0/01-skeleton` | ✅ **DONE — verified 2026-08-16** | root, src/core/ |
 | 2 | Tenant + User models | @backend | [L] | `m0/02-tenant-user` | ✅ **DONE — 2026-08-16** | src/models/ |
-| 3 | Request scope + repository base | @backend | [L] | `m0/03-scoping` | **Blocked by ADR-010 only** | src/core/ |
+| 3 | Request scope + repository base | @backend | [L] | `m0/03-scoping` | **READY — next up, highest risk** | src/core/ |
 | 4 | Audit infrastructure | @backend | [L] | `m0/04-audit` | Blocked by #3 | src/models/, src/core/ |
 | 5 | Company model + CRUD | @backend | [L] | `m0/05-company` | Blocked by #4 | src/models/, src/api/ |
 | 6 | Contact, Opportunity, PipelineStage | @backend | [L] | `m0/06-entities` | Blocked by #5 | src/models/ |
@@ -71,7 +71,7 @@ Detail and acceptance criteria in `ops/ISSUES.md`. **Sequential — dependencies
 | 11 | App shell + API client | @frontend | [L] | `m0/11-shell` | Blocked by #7 | client/ |
 | 12 | Company list + detail | @frontend | [L] | `m0/12-company-ui` | Blocked by #11 | client/ |
 
-**Next action:** settle **ADR-010** (sync vs async SQLAlchemy) — it is now the *only* thing blocking #3, and #3 blocks everything after it.
+**Next action:** start #3 — `git checkout -b m0/03-scoping`, claim `src/core/` in the lock table. Nothing blocks it.
 **Highest-risk issue:** #3 — every tenancy and soft-delete guarantee rests on the repository base. It now carries **three** query invariants, not two: tenant scope (ADR-006), soft delete (ADR-009), and system-actor exclusion from user listings (ADR-011).
 
 ---
@@ -83,7 +83,7 @@ Doc work that does not depend on unverified code:
 | Item | Unblocks | Status |
 |---|---|---|
 | `docs/API_CONVENTIONS.md` | #7 (must follow it), #11 (generated types) | Done |
-| ADR-010 sync/async | #3 | Needs [L] decision |
+| ADR-010 sync/async | #3 | Done — sync, 2026-08-16 |
 | ADR-004 deployment | Deploy | Needs [L] decision |
 | `docs/IMPORT_SPEC.md` structure | #9 | Awaiting real Salesforce samples |
 | Repo split from Zeus | Branch workflow for #1–12 | Done — 2026-08-16 |
@@ -143,5 +143,5 @@ Doc work that does not depend on unverified code:
 | ADR-007 | Identity first — stub, SSO adapter later | Accepted | [L] | 2026-07-23 |
 | ADR-008 | Entity naming — Tenant, Company | Accepted | [L] | 2026-07-23 |
 | ADR-009 | Soft delete + orphan contacts permitted | Accepted | [L] | 2026-07-23 |
-| ADR-010 | Sync vs async SQLAlchemy | **Pending — sole blocker for #3** | [L] | |
+| ADR-010 | Synchronous SQLAlchemy | Accepted | [L] | 2026-08-16 |
 | ADR-011 | System actor — per-tenant, non-human identity | Accepted | [L] | 2026-08-16 |

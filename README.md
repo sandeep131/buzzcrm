@@ -88,18 +88,17 @@ client/          React SPA                  (issue #11)
 
 ---
 
-## Open: Sync vs Async SQLAlchemy — needs ADR-010
+## Settled: Synchronous SQLAlchemy — ADR-010
 
-Scaffolded **sync**. Rationale: the concurrency that actually matters
-(import batches, event delivery) belongs in background workers, not the
-request path; FastAPI runs sync routes in a threadpool; and sync keeps
+Sync, **accepted 2026-08-16** after building #2 against it. The concurrency that
+actually matters (import batches, event delivery) belongs in background workers,
+not the request path; FastAPI runs sync routes in a threadpool; and sync keeps
 Alembic, tests, and the repository base materially simpler.
 
-ADR-002 cited async as a FastAPI benefit, so this is a deliberate
-narrowing of that, not an oversight.
+One footgun it creates: a route declared `async def` that touches the database
+blocks the event loop. Database routes are `def`. @qa checks this in review.
 
-**Decide before issue #3.** The repository base is where sessions get used
-everywhere — switching after that means rewriting every repository method.
+Full rationale and revisit criteria in `docs/DECISIONS/010-sync-sqlalchemy.md`.
 
 ---
 
