@@ -41,10 +41,12 @@ styles in one codebase — one for migrations and one for everything else.
 This is a deliberate narrowing of ADR-002, which cited async among FastAPI's
 benefits. Recorded so it reads as a decision rather than an oversight.
 
-## Evidence from Issue #2
+## Evidence from Issues #2 and #3
 
-The scaffold was written sync provisionally. Building #2 on it tested that
-assumption against real code rather than argument:
+The scaffold was written sync provisionally. Building on it tested that
+assumption against real code rather than argument.
+
+**From #2 (models, migration, seed):**
 
 - The tenant/system-actor bootstrap is a single transaction whose correctness
   depends on commit timing (deferred constraints, ADR-011). Reasoning about
@@ -55,7 +57,24 @@ assumption against real code rather than argument:
   that a plain fixture.
 - Nothing in #2 wanted async. No await would have improved any of it.
 
-No counter-evidence appeared. Confirming rather than reversing.
+**From #3 (request scope and repository base) — the decision this ADR gated:**
+
+- The repository base was built sync end to end: `_scoped_select()`, all reads,
+  all writes, and the `get_current_user()` dependency. This is the code whose
+  session style the ADR exists to fix, and it is now written.
+- FastAPI resolves the sync `get_current_user()` dependency through `Depends()`
+  without ceremony — proven by test, not assumed.
+- The three query invariants are expressed as plain `Select` construction. No
+  part of that logic would be clearer, safer, or shorter async.
+
+No counter-evidence appeared in either issue. This confirms the scaffold's
+provisional choice rather than reversing it.
+
+**Reversal cost, now concrete.** Every method on `TenantScopedRepository`, the
+`get_session()` dependency, and the whole test harness (which relies on real
+COMMITs to check deferred constraints) would need rewriting. That cost grows
+with each repository added from #5 onward. It was cheapest to settle here, which
+is exactly why #3 was gated on it.
 
 ## Consequences
 

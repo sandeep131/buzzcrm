@@ -4,6 +4,39 @@
 
 ---
 
+## ▶ Session Start — Current State (2026-08-16)
+
+**Everything below is verified by execution, not written-and-hoped.** The
+distinction mattered historically: #1 was authored via MCP and sat unverified
+for three weeks. That debt is cleared. Nothing in this repo is now "written but
+unrun".
+
+| | |
+|---|---|
+| **Done** | #1 skeleton · #2 tenant + user · #3 request scope + repository base |
+| **Next** | **#4 audit infrastructure** — `git checkout -b m0/04-audit` |
+| **Blockers** | **None on the critical path.** ADR-004 gates *deploying*, not building. |
+| **Tests** | 48 passing on `main` |
+| **Repo** | Standalone `sandeep131/buzzcrm`. `main` pushed and in sync. |
+
+**Environment (EC2 box):** Postgres 16 is **native on port 5433**, not Docker —
+`docker-compose.yml` is unused here. Build venvs with **`python3.11`**; the box
+default `python3` is 3.9 and will not satisfy `requires-python`. Full setup and
+rationale in `README.md`.
+
+**Decisions settled this session:** ADR-010 (synchronous SQLAlchemy) and
+ADR-011 (per-tenant system actor). Read ADR-011 before touching identity,
+audit, or any listing of users — it adds a third query invariant.
+
+**How to verify this claim yourself**, rather than trusting this file:
+
+```bash
+python3.11 -m venv .venv && .venv/bin/pip install -e ".[dev]"
+.venv/bin/alembic upgrade head && .venv/bin/pytest      # expect 48 passed
+```
+
+---
+
 ## Current Milestone
 **Milestone 0: Foundation**
 Target: TBD · Backlog detail: `ops/ISSUES.md`
@@ -24,7 +57,8 @@ Full README checklist executed on the EC2 box: `pip install -e ".[dev]"` resolve
 and no connection string is hardcoded in `src/`.
 
 The scaffold ran correctly as written — the MCP-authored code needed no repair.
-**#2 is unblocked.**
+*(Historical record. #2 and #3 have since been built and merged on top of it —
+see the issue table below for live status.)*
 
 **Environment note:** Docker is not installed on the EC2 box, and the box runs
 Zeus / RHTP / PeakSpan, so the Docker daemon's iptables chains were judged not
@@ -45,7 +79,7 @@ installed alongside the box's 3.9, which remains the untouched system default.
 - [x] ~~Entity naming~~ → ADR-008
 - [x] ~~Soft delete + orphan contacts~~ → ADR-009
 - [x] ~~Bootstrap actor / nullable `created_by`~~ → ADR-011 (per-tenant system actor)
-- [x] ~~**ADR-010 — sync vs async SQLAlchemy**~~ → **ADR-010: sync, Accepted 2026-08-16.** Confirmed against #2 rather than on argument alone. **#3 is now unblocked.**
+- [x] ~~**ADR-010 — sync vs async SQLAlchemy**~~ → **ADR-010: sync, Accepted 2026-08-16.** Confirmed against real code (#2, then #3) rather than on argument alone.
 - [ ] **Deployment target — ADR-004.** Gated on the auth stub (ADR-007). MVP must not be publicly reachable until the SSO adapter lands.
 - [ ] Sales roles / permissions model — needs role list from Skyscape team
 - [ ] Initial Salesforce export samples from sales team
