@@ -25,7 +25,8 @@ BuzzCRM is an internal operational CRM for Skyscape sales. It replaces the daily
 - [x] ~~Add a path-scoped commit command to Zeus `mcp-server.js`~~ — moot; the repo split makes rule 11 structural
 - [x] ~~Split BuzzCRM into its own repo~~ — done 2026-08-16, `sandeep131/buzzcrm` with fresh history
 - [ ] Remove `buzzcrm/` from the Zeus repo — optional cleanup, step 3 of `docs/brain/session-b-runbook.md`. Safe to do now that the standalone repo is verified working.
-- [ ] CI — branch/PR checks (`pytest`) now that branch workflow is actually usable
+- [x] ~~CI — branch/PR checks~~ — `.github/workflows/ci.yml`, 2026-08-16. Runs migrations up **and** down, the suite, and an app-boot check against a real Postgres 16 service container. This is what makes "CI must pass before merge" enforceable.
+- [ ] Enable branch protection on `main` — require the CI check before merge. Cannot be set from the CLI without admin scope; do it in GitHub → Settings → Branches.
 
 ## Architecture
 
