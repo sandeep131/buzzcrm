@@ -16,14 +16,16 @@ BuzzCRM is an internal operational CRM for Skyscape sales. It replaces the daily
 8. **Data migration is deterministic.** Agents create and review code; production data movement follows explicit, testable steps. No free-form agent handoffs for import processing.
 9. **[L] is merge authority.** PRs merge only after [L] approves.
 10. **Update `ops/HUB.md` at session start (claim) and end (report).**
-11. **Zeus repo boundary.** While BuzzCRM lives inside the Zeus repo, all agent/AI file writes are confined to `buzzcrm/`. Before any commit via MCP, run `git status`; if anything outside `buzzcrm/` is dirty or untracked, do NOT commit — hand back to the human. Commit only when the diff is purely `buzzcrm/`.
+11. ~~**Zeus repo boundary.**~~ **RETIRED 2026-08-16** — BuzzCRM is now its own repo (`sandeep131/buzzcrm`), so the boundary is structural rather than behavioural. Rule number kept to avoid renumbering 12 and 13, which are referenced elsewhere. The instinct behind it still stands: this repo shares a box with Zeus, RHTP, and PeakSpan — never touch their processes, ports, or files, and keep BuzzCRM's Postgres its own (host port 5433).
 12. **Tenant scoping is not optional.** Every domain table has `tenant_id`. Filtering happens at the data-access layer, never per-endpoint. Every list/detail endpoint has a cross-tenant isolation test. (ADR-006)
 13. **Naming is fixed.** Tenant = isolation boundary. Company = a company in the pipeline. "Organization" is a Buzz term and must not appear in BuzzCRM code. (ADR-008)
 
 ## TODO (Infra)
 
-- [ ] Add a path-scoped commit command to Zeus `mcp-server.js` (`git add buzzcrm && git commit`) to enforce rule 11 mechanically, not just behaviorally
-- [ ] Split BuzzCRM into its own repo when Milestone 0 coding starts — branch/PR/CI workflow doesn't fit Zeus's push-to-main deploy model
+- [x] ~~Add a path-scoped commit command to Zeus `mcp-server.js`~~ — moot; the repo split makes rule 11 structural
+- [x] ~~Split BuzzCRM into its own repo~~ — done 2026-08-16, `sandeep131/buzzcrm` with fresh history
+- [ ] Remove `buzzcrm/` from the Zeus repo — optional cleanup, step 3 of `docs/brain/session-b-runbook.md`. Safe to do now that the standalone repo is verified working.
+- [ ] CI — branch/PR checks (`pytest`) now that branch workflow is actually usable
 
 ## Architecture
 

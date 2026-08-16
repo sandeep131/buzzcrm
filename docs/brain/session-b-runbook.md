@@ -10,7 +10,13 @@ Step 3 below is where that debt clears.
 
 ---
 
-## One-Time Setup — Repo Split
+> **STATUS 2026-08-16 — the one-time setup below is DONE.** Repo split complete
+> (`sandeep131/buzzcrm`, fresh history) and issue #1 verified green with no code
+> fixes needed. Skip to "Then — Issues #2 Onward". Two carry-overs: removing
+> `buzzcrm/` from the Zeus repo (step 3, optional) and the environment deviation
+> — Postgres is **native on 5433, not Docker**, on this box. See `README.md`.
+
+## One-Time Setup — Repo Split *(completed)*
 
 BuzzCRM currently lives as `buzzcrm/` inside the Zeus repo. The 12 issues each
 need their own branch, and Zeus deploys from `main`, so BuzzCRM needs to be its
@@ -100,17 +106,22 @@ shell can reach all of it. Keep it boxed:
 
 ---
 
-## Verify Issue #1 (the outstanding debt)
+## Verify Issue #1 (the outstanding debt) — ✅ CLEARED 2026-08-16
 
-First Session B task. From `~/buzzcrm`:
+All green on first run; the MCP-authored scaffold needed no repair. Kept below as
+the reproducible recipe. Note `python3.11` and native Postgres, which differ from
+what was written here originally.
+
+From `~/buzzcrm`:
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
+python3.11 -m venv .venv && source .venv/bin/activate   # NOT python3 — box default is 3.9
 pip install -e ".[dev]"
 
 cp env.example .env               # edit if ports differ
-docker compose up -d db           # Postgres on 5433
-sleep 5                           # let the healthcheck pass
+# Postgres: native on this box, already running via systemd on 5433.
+# (docker compose up -d db only on machines that have Docker.)
+sudo systemctl status postgresql --no-pager | head -3
 
 alembic upgrade head              # clean no-op — no revisions yet
 pytest                            # expect: 2 passed

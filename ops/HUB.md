@@ -12,18 +12,26 @@ Target: TBD · Backlog detail: `ops/ISSUES.md`
 
 ---
 
-## ⚠ Open Verification Debt
+## ✅ Verification Debt — CLEARED 2026-08-16
 
-| Item | Written | Verified | Blocker |
+| Item | Written | Verified | Result |
 |---|---|---|---|
-| #1 project skeleton | 2026-07-23, via MCP | **NO** | Needs terminal — checklist in `README.md` |
+| #1 project skeleton | 2026-07-23, via MCP | **YES** — 2026-08-16, Session B | Green, no code changes needed |
 
-Written from the project chat, never executed. `pytest`, `alembic upgrade head`,
-and `uvicorn` boot are all unconfirmed. Do NOT mark #1 done or start #2 against
-it until the README checklist passes.
+Full README checklist executed on the EC2 box: `pip install -e ".[dev]"` resolved,
+`pytest` 2 passed, `alembic upgrade head` a clean no-op against an empty database,
+`uvicorn` booted and `/health` returned 200 `{"status":"ok","environment":"local"}`,
+and no connection string is hardcoded in `src/`.
 
-Nothing downstream of #1 should be *written* while this is outstanding either —
-building on an unverified foundation compounds the debt.
+The scaffold ran correctly as written — the MCP-authored code needed no repair.
+**#2 is unblocked.**
+
+**Environment note:** Docker is not installed on the EC2 box, and the box runs
+Zeus / RHTP / PeakSpan, so the Docker daemon's iptables chains were judged not
+worth adding next to live services. Postgres 16 runs natively on 5433 instead,
+with identical credentials — `docker-compose.yml` is untouched and still valid
+elsewhere. Setup steps and rationale are in `README.md`. Python 3.11 was
+installed alongside the box's 3.9, which remains the untouched system default.
 
 ---
 
@@ -49,9 +57,9 @@ Detail and acceptance criteria in `ops/ISSUES.md`. **Sequential — dependencies
 
 | # | Issue | Agent | Human | Branch | Status | Module |
 |---|---|---|---|---|---|---|
-| 1 | Project skeleton | @backend | [L] | `m0/01-skeleton` | **Written, UNVERIFIED** | root, src/core/ |
-| 2 | Tenant + User models | @backend | [L] | `m0/02-tenant-user` | Blocked by #1 verification | src/models/ |
-| 3 | Request scope + repository base | @backend | [L] | `m0/03-scoping` | Blocked by #2 + ADR-010 | src/core/ |
+| 1 | Project skeleton | @backend | [L] | `m0/01-skeleton` | ✅ **DONE — verified 2026-08-16** | root, src/core/ |
+| 2 | Tenant + User models | @backend | [L] | `m0/02-tenant-user` | **READY — next up** | src/models/ |
+| 3 | Request scope + repository base | @backend | [L] | `m0/03-scoping` | Blocked by #2 + **ADR-010** | src/core/ |
 | 4 | Audit infrastructure | @backend | [L] | `m0/04-audit` | Blocked by #3 | src/models/, src/core/ |
 | 5 | Company model + CRUD | @backend | [L] | `m0/05-company` | Blocked by #4 | src/models/, src/api/ |
 | 6 | Contact, Opportunity, PipelineStage | @backend | [L] | `m0/06-entities` | Blocked by #5 | src/models/ |
@@ -62,7 +70,8 @@ Detail and acceptance criteria in `ops/ISSUES.md`. **Sequential — dependencies
 | 11 | App shell + API client | @frontend | [L] | `m0/11-shell` | Blocked by #7 | client/ |
 | 12 | Company list + detail | @frontend | [L] | `m0/12-company-ui` | Blocked by #11 | client/ |
 
-**Next action at a terminal:** verify #1 against the README checklist.
+**Next action:** start #2 — `git checkout -b m0/02-tenant-user`, claim `src/models/` + `migrations/` in the lock table.
+**Decide before #3:** ADR-010 (sync vs async). It is now the only thing standing between #2 and #3.
 **Highest-risk issue:** #3 — every tenancy and soft-delete guarantee rests on the repository base.
 
 ---
@@ -77,7 +86,7 @@ Doc work that does not depend on unverified code:
 | ADR-010 sync/async | #3 | Needs [L] decision |
 | ADR-004 deployment | Deploy | Needs [L] decision |
 | `docs/IMPORT_SPEC.md` structure | #9 | Awaiting real Salesforce samples |
-| Repo split from Zeus | Branch workflow for #1–12 | Needs terminal |
+| Repo split from Zeus | Branch workflow for #1–12 | Done — 2026-08-16 |
 
 ---
 
@@ -85,8 +94,8 @@ Doc work that does not depend on unverified code:
 
 | Issue | Blocked By | Owner |
 |---|---|---|
-| #1 verification | No SSH access — deferred | [L]/@backend |
-| Repo split from Zeus | No SSH access — branches unusable until done | [L]/@ops |
+| ~~#1 verification~~ | ~~No SSH access~~ — **cleared 2026-08-16** | [L]/@backend |
+| ~~Repo split from Zeus~~ | **Done** — standalone repo at `sandeep131/buzzcrm`, fresh history, branches usable | [L]/@ops |
 | #9 field mapping (real data) | Need Salesforce export samples — synthetic fixture meanwhile | [L]/@data |
 | #6 stage seed (real stages) | Need Skyscape stage list — placeholders unblock the work | [L]/@lead |
 | Permissions model | Need sales roles list | [L]/@lead |
@@ -115,6 +124,8 @@ Doc work that does not depend on unverified code:
 - Architecture settled — ADR-002 through ADR-009; DOMAIN_MODEL.md written
 - Milestone 0 decomposed — 12 issues in `ops/ISSUES.md`
 - API conventions written — `docs/API_CONVENTIONS.md`
+- **Repo split from Zeus — standalone `sandeep131/buzzcrm`, fresh history (2026-08-16)**
+- **Issue #1 verified end-to-end on the EC2 box — green, no fixes needed (2026-08-16)**
 
 ---
 
