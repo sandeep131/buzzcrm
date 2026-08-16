@@ -1,6 +1,6 @@
 # BuzzCRM — Current Assignments
 
-**Last updated:** 2026-07-23 by [L]
+**Last updated:** 2026-08-16 by [L]
 **Current milestone:** 0 — Foundation
 
 ---
@@ -38,7 +38,7 @@ With one human, the author of a PR is also its reviewer. The compensating contro
 | Module | Locked By | Branch | Since | Issue |
 |---|---|---|---|---|
 | src/core/ | — | — | — | — |
-| src/models/ | — | — | — | — |
+| src/models/ | [L]/@backend | `m0/02-tenant-user` | 2026-08-16 | #2 |
 | src/api/ | — | — | — | — |
 | src/events/ | — | — | — | — |
 | src/import/ | — | — | — | — |
@@ -46,8 +46,8 @@ With one human, the author of a PR is also its reviewer. The compensating contro
 | src/ai/ | — | — | — | — |
 | src/buzz/ | — | — | — | — |
 | client/ | — | — | — | — |
-| tests/ | — | — | — | — |
-| migrations/ | — | — | — | — |
+| tests/ | [L]/@backend | `m0/02-tenant-user` | 2026-08-16 | #2 (own tests) |
+| migrations/ | [L]/@backend | `m0/02-tenant-user` | 2026-08-16 | #2 |
 
 *(All unlocked. Claim a module by creating your branch and filling in this row.)*
 

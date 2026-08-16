@@ -34,15 +34,31 @@ Tenant
 
 | Field | Type | Notes |
 |---|---|---|
-| `id` | UUID | Primary key |
+| `id` | UUID | Primary key, generated application-side (ADR-011) |
 | `tenant_id` | UUID FK → tenants | NOT NULL, indexed (ADR-006) |
 | `sf_id` | text, nullable | Salesforce source ID |
-| `created_at` | timestamptz | |
-| `updated_at` | timestamptz | |
-| `created_by` | UUID FK → users | |
-| `updated_by` | UUID FK → users | |
+| `created_at` | timestamptz | NOT NULL |
+| `updated_at` | timestamptz | NOT NULL |
+| `created_by` | UUID FK → users | **NOT NULL** (ADR-011) |
+| `updated_by` | UUID FK → users | **NOT NULL** (ADR-011) |
 | `deleted_at` | timestamptz, nullable | Soft delete (ADR-009) |
-| `deleted_by` | UUID FK → users, nullable | |
+| `deleted_by` | UUID FK → users, nullable | Only set when deleted |
+
+`created_by` / `updated_by` are total — there is no record without an actor.
+Writes with no human behind them (bootstrap, import batches, later AI
+proposals) are attributed to the tenant's **system actor**, ADR-011.
+
+Actor foreign keys are `DEFERRABLE INITIALLY DEFERRED` and `ON DELETE RESTRICT`.
+Deferral exists because `tenants.created_by → users` and `users.tenant_id →
+tenants` are circular, so the first tenant and its system actor must be
+inserted in one transaction and checked at COMMIT. See ADR-011 constraint 2.
+
+**Two tables do not carry every base field:**
+
+| Table | Omits | Why |
+|---|---|---|
+| `tenants` | `tenant_id` | It *is* the scope (ADR-011, Clarification to ADR-006) |
+| `tenants`, `users` | `sf_id` | Neither is imported from Salesforce |
 
 `sf_id` is NULL for records created natively in BuzzCRM. Non-NULL means imported, and it is what makes re-import idempotent.
 
@@ -53,10 +69,16 @@ Tenant
 ## Entities
 
 ### Tenant
-Isolation boundary. `name`, `slug`, `is_active`. Not tenant-scoped itself (it *is* the scope).
+Isolation boundary. `name`, `slug`, `is_active`. Not tenant-scoped itself (it *is* the scope). `slug` is unique among live tenants (partial index — a soft delete frees it).
+
+Never created by a bare INSERT: creating a tenant means "create tenant + seed its system actor" in one transaction, or the tenant's machine writes cannot be attributed (ADR-011). Use `provision_tenant()`.
 
 ### User
-`tenant_id`, `email`, `display_name`, `is_active`. Audit actor for everything. Auth is stubbed for MVP (ADR-007).
+`tenant_id`, `email`, `display_name`, `is_active`, `is_system`. Audit actor for everything. Auth is stubbed for MVP (ADR-007). No `sf_id` — users are not imported from Salesforce.
+
+`email` is unique **per tenant**, not globally — two tenants may legitimately hold the same person. Partial index, so a soft delete frees the address.
+
+`is_system` marks the tenant's **system actor** (ADR-011): one per tenant, seeded with the tenant, holding no privileges and unable to authenticate. It is excluded from user *listings* and assignee pickers, but always resolvable by ID so an audit entry can render "Imported by System". That exclusion is a third query invariant — see below.
 
 ### Company
 `name`, `domain`, `industry`, `owner_id` (FK → users), plus base fields. The pipeline's central entity.
@@ -79,12 +101,15 @@ Per design principle 1 — one next action, one owner, one due date. Next-action
 
 ## Query Invariants
 
-Two predicates are applied by the repository base layer on every read, never by individual endpoints:
+Predicates applied by the repository base layer on every read, never by individual endpoints:
 
 1. `tenant_id = <current tenant>` (ADR-006)
 2. `deleted_at IS NULL` (ADR-009)
+3. `is_system = false` — when **listing users** (ADR-011)
 
-Explicit opt-in is required to bypass either. Both have mandatory tests.
+Explicit opt-in is required to bypass any of them. All have mandatory tests.
+
+Invariant 3 is narrower than 1 and 2: it applies to listing users, not to resolving one by ID. An audit entry's `actor_id` must always resolve, including to a system actor.
 
 ---
 

@@ -12,9 +12,10 @@ from sqlalchemy import engine_from_config, pool
 from src.core.config import get_settings
 from src.core.db import Base
 
-# Models must be imported before autogenerate can see them.
-# Issue #2 adds the first imports here.
-# from src.models import tenant, user  # noqa: F401
+# Models must be imported before autogenerate can see them. Importing the
+# package registers every model on Base.metadata; a model not reachable from
+# src/models/__init__.py is invisible to autogenerate.
+import src.models  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", get_settings().database_url)

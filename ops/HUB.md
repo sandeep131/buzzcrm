@@ -44,6 +44,7 @@ installed alongside the box's 3.9, which remains the untouched system default.
 - [x] ~~Identity for MVP~~ → ADR-007
 - [x] ~~Entity naming~~ → ADR-008
 - [x] ~~Soft delete + orphan contacts~~ → ADR-009
+- [x] ~~Bootstrap actor / nullable `created_by`~~ → ADR-011 (per-tenant system actor)
 - [ ] **ADR-010 — sync vs async SQLAlchemy.** Scaffolded sync; rationale in `README.md`. **Must settle before #3** — the repository base bakes session style into every query path. Cheap now, a rewrite later.
 - [ ] **Deployment target — ADR-004.** Gated on the auth stub (ADR-007). MVP must not be publicly reachable until the SSO adapter lands.
 - [ ] Sales roles / permissions model — needs role list from Skyscape team
@@ -58,8 +59,8 @@ Detail and acceptance criteria in `ops/ISSUES.md`. **Sequential — dependencies
 | # | Issue | Agent | Human | Branch | Status | Module |
 |---|---|---|---|---|---|---|
 | 1 | Project skeleton | @backend | [L] | `m0/01-skeleton` | ✅ **DONE — verified 2026-08-16** | root, src/core/ |
-| 2 | Tenant + User models | @backend | [L] | `m0/02-tenant-user` | **READY — next up** | src/models/ |
-| 3 | Request scope + repository base | @backend | [L] | `m0/03-scoping` | Blocked by #2 + **ADR-010** | src/core/ |
+| 2 | Tenant + User models | @backend | [L] | `m0/02-tenant-user` | ✅ **DONE — 2026-08-16** | src/models/ |
+| 3 | Request scope + repository base | @backend | [L] | `m0/03-scoping` | **Blocked by ADR-010 only** | src/core/ |
 | 4 | Audit infrastructure | @backend | [L] | `m0/04-audit` | Blocked by #3 | src/models/, src/core/ |
 | 5 | Company model + CRUD | @backend | [L] | `m0/05-company` | Blocked by #4 | src/models/, src/api/ |
 | 6 | Contact, Opportunity, PipelineStage | @backend | [L] | `m0/06-entities` | Blocked by #5 | src/models/ |
@@ -70,9 +71,8 @@ Detail and acceptance criteria in `ops/ISSUES.md`. **Sequential — dependencies
 | 11 | App shell + API client | @frontend | [L] | `m0/11-shell` | Blocked by #7 | client/ |
 | 12 | Company list + detail | @frontend | [L] | `m0/12-company-ui` | Blocked by #11 | client/ |
 
-**Next action:** start #2 — `git checkout -b m0/02-tenant-user`, claim `src/models/` + `migrations/` in the lock table.
-**Decide before #3:** ADR-010 (sync vs async). It is now the only thing standing between #2 and #3.
-**Highest-risk issue:** #3 — every tenancy and soft-delete guarantee rests on the repository base.
+**Next action:** settle **ADR-010** (sync vs async SQLAlchemy) — it is now the *only* thing blocking #3, and #3 blocks everything after it.
+**Highest-risk issue:** #3 — every tenancy and soft-delete guarantee rests on the repository base. It now carries **three** query invariants, not two: tenant scope (ADR-006), soft delete (ADR-009), and system-actor exclusion from user listings (ADR-011).
 
 ---
 
@@ -126,6 +126,7 @@ Doc work that does not depend on unverified code:
 - API conventions written — `docs/API_CONVENTIONS.md`
 - **Repo split from Zeus — standalone `sandeep131/buzzcrm`, fresh history (2026-08-16)**
 - **Issue #1 verified end-to-end on the EC2 box — green, no fixes needed (2026-08-16)**
+- **Issue #2 — Tenant + User models, first migration, seed; ADR-011 system actor (2026-08-16)**
 
 ---
 
@@ -142,4 +143,5 @@ Doc work that does not depend on unverified code:
 | ADR-007 | Identity first — stub, SSO adapter later | Accepted | [L] | 2026-07-23 |
 | ADR-008 | Entity naming — Tenant, Company | Accepted | [L] | 2026-07-23 |
 | ADR-009 | Soft delete + orphan contacts permitted | Accepted | [L] | 2026-07-23 |
-| ADR-010 | Sync vs async SQLAlchemy | **Pending — blocks #3** | [L] | |
+| ADR-010 | Sync vs async SQLAlchemy | **Pending — sole blocker for #3** | [L] | |
+| ADR-011 | System actor — per-tenant, non-human identity | Accepted | [L] | 2026-08-16 |
