@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16
+    container_name: buzzcrm-db
+    environment:
+      POSTGRES_USER: buzzcrm
+      POSTGRES_PASSWORD: buzzcrm
+      POSTGRES_DB: buzzcrm
+    ports:
+      # 5433 on the host to avoid colliding with any existing local Postgres
+      - "5433:5432"
+    volumes:
+      - buzzcrm_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U buzzcrm"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  buzzcrm_pgdata:

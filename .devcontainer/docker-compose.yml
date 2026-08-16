@@ -1,0 +1,39 @@
+# Codespaces / Dev Container compose — DEVELOPMENT ONLY.
+#
+# Distinct from the root docker-compose.yml (which is just a local Postgres).
+# This one also builds an app container so the Codespace has a Python
+# environment wired to the database on an internal network.
+#
+# Postgres is on the default 5432 here (not the root file's 5433) because
+# inside a Codespace there is no host Postgres to collide with.
+
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/python:3.11-bookworm
+    volumes:
+      - ..:/workspace:cached
+    command: sleep infinity
+    environment:
+      DATABASE_URL: postgresql+psycopg://buzzcrm:buzzcrm@db:5432/buzzcrm
+      ENVIRONMENT: codespace
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: buzzcrm
+      POSTGRES_PASSWORD: buzzcrm
+      POSTGRES_DB: buzzcrm
+    volumes:
+      - buzzcrm_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U buzzcrm"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  buzzcrm_pgdata:
