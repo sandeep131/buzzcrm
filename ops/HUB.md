@@ -60,8 +60,8 @@ Detail and acceptance criteria in `ops/ISSUES.md`. **Sequential — dependencies
 |---|---|---|---|---|---|---|
 | 1 | Project skeleton | @backend | [L] | `m0/01-skeleton` | ✅ **DONE — verified 2026-08-16** | root, src/core/ |
 | 2 | Tenant + User models | @backend | [L] | `m0/02-tenant-user` | ✅ **DONE — 2026-08-16** | src/models/ |
-| 3 | Request scope + repository base | @backend | [L] | `m0/03-scoping` | **READY — next up, highest risk** | src/core/ |
-| 4 | Audit infrastructure | @backend | [L] | `m0/04-audit` | Blocked by #3 | src/models/, src/core/ |
+| 3 | Request scope + repository base | @backend | [L] | `m0/03-scoping` | ✅ **DONE — 2026-08-16** | src/core/ |
+| 4 | Audit infrastructure | @backend | [L] | `m0/04-audit` | **READY — next up** | src/models/, src/core/ |
 | 5 | Company model + CRUD | @backend | [L] | `m0/05-company` | Blocked by #4 | src/models/, src/api/ |
 | 6 | Contact, Opportunity, PipelineStage | @backend | [L] | `m0/06-entities` | Blocked by #5 | src/models/ |
 | 7 | Contact + Opportunity endpoints | @backend | [L] | `m0/07-entity-api` | Blocked by #6 | src/api/ |
@@ -71,8 +71,8 @@ Detail and acceptance criteria in `ops/ISSUES.md`. **Sequential — dependencies
 | 11 | App shell + API client | @frontend | [L] | `m0/11-shell` | Blocked by #7 | client/ |
 | 12 | Company list + detail | @frontend | [L] | `m0/12-company-ui` | Blocked by #11 | client/ |
 
-**Next action:** start #3 — `git checkout -b m0/03-scoping`, claim `src/core/` in the lock table. Nothing blocks it.
-**Highest-risk issue:** #3 — every tenancy and soft-delete guarantee rests on the repository base. It now carries **three** query invariants, not two: tenant scope (ADR-006), soft delete (ADR-009), and system-actor exclusion from user listings (ADR-011).
+**Next action:** start #4 (audit infrastructure) — `git checkout -b m0/04-audit`. The repository base already funnels every write through `create` / `update` / `soft_delete`, which is where #4 hooks.
+**Highest-risk issue:** ~~#3~~ — done. All three query invariants are centralised in `src/core/repository.py` and mutation-tested: removing the tenant predicate fails 9 tests, including the direct-ID fetch. #8 still owns the per-endpoint sweep.
 
 ---
 
@@ -127,6 +127,8 @@ Doc work that does not depend on unverified code:
 - **Repo split from Zeus — standalone `sandeep131/buzzcrm`, fresh history (2026-08-16)**
 - **Issue #1 verified end-to-end on the EC2 box — green, no fixes needed (2026-08-16)**
 - **Issue #2 — Tenant + User models, first migration, seed; ADR-011 system actor (2026-08-16)**
+- **ADR-010 settled — synchronous SQLAlchemy (2026-08-16)**
+- **Issue #3 — request scope + repository base; three invariants centralised (2026-08-16)**
 
 ---
 
